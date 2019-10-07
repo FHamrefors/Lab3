@@ -1,5 +1,5 @@
 -- | The Tetris game (main module)
-module Main where
+module Tetris where
 import ConsoleGUI       -- cabal install ansi-terminal 
 --import CodeWorldGUI     -- cabal install codeworld-api
 import Shapes
@@ -75,7 +75,7 @@ addLeft n row = [r ++ (replicate n (Just Black)) | r <-row]
 -- | Visualize the current game state. This is what the user will see
 -- when playing the game.
 drawTetris :: Tetris -> Shape
---drawTetris (Tetris (v,p) w _) = w -- incomplete !!!
+drawTetris (Tetris (v,p) w _) = addWalls (combine (shiftShape v p) w)
 
 
 --B7
@@ -85,8 +85,15 @@ startTetris rs = Tetris (startPosition,shape1) (emptyShape wellSize) supply
   where
     shape1:supply = repeat (allShapes!!1) -- incomplete !!!
 
+move :: Vector -> Tetris -> Tetris
+move v1 (Tetris (v2,p) w s) = (Tetris((vAdd v1 v2),p) w s)
+
 --B8
 -- | React to input. The function returns 'Nothing' when it's game over,
 -- and @'Just' (n,t)@, when the game continues in a new state @t@.
 stepTetris :: Action -> Tetris -> Maybe (Int,Tetris)
-stepTetris _ t = Just (0,t) -- incomplete !!!
+stepTetris _ t = tick t
+
+tick :: Tetris -> Maybe (Int,Tetris)
+tick (Tetris (v,p) w s) = Just (0,t)
+   where t = (move (0,1) (Tetris (v,p) w s))
